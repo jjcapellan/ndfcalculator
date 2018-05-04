@@ -46,6 +46,9 @@ var exposureApp = {
         // Shutter speed in seconds 
         this.resultInSeconds = 0;
 
+        // True when sound is played first time. (workarround for user gesture limitation)
+        this.soundIsInitialized=false;
+
 
         // Array with possible shutter speeds in text and number format (rows 0&1 full stops
         // rows 2&3 1/2 stops, rows 4&5 1/3 stops)
@@ -300,6 +303,7 @@ var exposureApp = {
         this.div_speedSelector = document.getElementById('speedSelector');
         this.div_filterSelector = document.getElementById('filterSelector');
         this.div_speedMode = document.getElementById('speedMode');
+        this.snd_countend=document.getElementById('snd_countend');
 
         //Adding events to selectors
         this.div_speedSelector.addEventListener('touchstart', this.onDownSpeed.bind(this), false);
@@ -317,7 +321,8 @@ var exposureApp = {
         this.div_speedMode.addEventListener('touchend', this.onUp.bind(this), false);
         this.div_speedMode.addEventListener('mouseup', this.onUp.bind(this), false);
         this.div_speedMode.addEventListener('touchmove', this.onMove.bind(this), false);
-        this.div_result.addEventListener('pointerdown', this.activateCounter.bind(this), false);
+        // On android touchend and pointerdown isn't detected as user gesture
+        this.div_result.addEventListener('mousedown', this.activateCounter.bind(this), false);
 
         //Variables to control swipe gesture
         this.swipeXstart = 0;
@@ -635,11 +640,19 @@ var exposureApp = {
     },
 
     /**
-     * Activate a countdown
+     * Activate a countdown. Executed by event mousedown on div_result HTML element.
      * 
      */
     activateCounter: function () {
         var t = this;
+
+        // Enable future sounds without user gestures limitation
+        if(!this.soundIsInitialized){
+            this.snd_countend.volume='0';
+            this.snd_countend.play();
+            this.soundIsInitialized=true;
+        }
+
         if (this.resultInSeconds > 2) {
             if (!this.counterIsactive) {
                 this.counterIsactive = true;
@@ -651,7 +664,9 @@ var exposureApp = {
                 exposureInterval = setInterval(function () {
                     t.p_result.innerHTML = t.secondsTohms(t.remainingTime);
                     t.remainingTime--;
-                    if (t.remainingTime < 0) {
+                    if (t.remainingTime < 0) {  
+                        t.snd_countend.volume='1';
+                        t.snd_countend.play();                      
                         clearInterval(exposureInterval);
                     }
                 }, 1000);
