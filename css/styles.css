@@ -126,3 +126,27 @@ body {
         font-size: 1em;
     }
 }
+
+@media screen and (max-height:300px){
+    
+    body {
+        font-size: 18px;
+    }
+
+    .flex-container{
+        min-height: 50px;
+        height: 25%;
+        margin-top: 0;
+    }
+
+    .flex-header p{
+        font-size: 0.5em;
+    }
+    
+    #header {
+        min-height: 5px;
+        height:10%;
+        margin:0;
+    }
+    
+}
